@@ -1817,14 +1817,27 @@
 
         // --- Sync Discord username ---
         if (discordName) {
+
             const trimmed = discordName.trim();
+
             if (trimmed) {
+
                 username = trimmed;
+
                 localStorage.setItem("fishingRPG_username", username);
 
                 const nameEl = document.getElementById("accountName");
+
                 if (nameEl) nameEl.textContent = username;
+
+                // 🔥 IMMEDIATE leaderboard sync
+
+                if (window.syncLeaderboardNow) window.syncLeaderboardNow();
+
+                return; // stop running further login code
+
             }
+
         }
 
         // 🔥 IMPORTANT: Force leaderboard update AFTER login
