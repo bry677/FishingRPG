@@ -1826,6 +1826,7 @@
             if (trimmed) {
 
                 username = trimmed;
+                window.fishingUsername = username;
 
                 // save + update UI
                 localStorage.setItem("fishingRPG_username", username);
@@ -1836,6 +1837,8 @@
 
                 // 🔥 IMMEDIATE leaderboard sync (correct name)
                 if (window.syncLeaderboardNow) window.syncLeaderboardNow();
+
+                syncLeaderboardNow();
 
                 return; // IMPORTANT: stop here so fallback sync does NOT run
 
