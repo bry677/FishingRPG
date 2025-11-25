@@ -1848,6 +1848,7 @@
 
     // ---------- Leaderboard (keyed by UID) ----------
     function syncLeaderboardNow() {
+    console.log("Syncing leaderboard NOW with username:", username, "UID:", auth.currentUser?.uid);
 
         const gs = window.gameState;
 
