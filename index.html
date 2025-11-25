@@ -1833,20 +1833,7 @@
             console.error("Error loading cloud save:", err);
         }
 
-        // Always sync leaderboard AFTER Firebase login completes
-        if (window.scheduleLeaderboardSync) {
-            window.scheduleLeaderboardSync();
-        }
-
-        // If user logged in with Discord, force an instant update
-        if (discordName) {
-            window.fishingUsername = discordName;
-            localStorage.setItem("fishingRPG_username", discordName);
-
-            // Force immediate update
-            syncLeaderboardNow();
-            syncCloudSave();
-        }
+        if (window.scheduleLeaderboardSync) window.scheduleLeaderboardSync();
     });
 
     // ---------- Leaderboard (keyed by UID) ----------
