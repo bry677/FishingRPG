@@ -1848,21 +1848,38 @@
 
     // ---------- Leaderboard (keyed by UID) ----------
     function syncLeaderboardNow() {
+
         const gs = window.gameState;
+
         const user = auth.currentUser;
+
         if (!gs || !user) return;
 
+
+
         const biggest = (window.getBiggestCatchKg && window.getBiggestCatchKg()) || 0;
+
         const userRef = ref(db, "leaderboard/" + user.uid);
+
         set(userRef, {
-            username: window.fishingUsername || username,
+
+            username: username,
+
             level: gs.level || 1,
+
             totalFish: gs.totalFish || 0,
+
             gold: gs.gold || 0,
+
             biggestCatchKg: biggest || 0,
+
             updatedAt: Date.now()
+
         }).catch(err => console.error("Error syncing leaderboard:", err));
+
     }
+
+    window.syncLeaderboardNow = syncLeaderboardNow;
 
     let syncTimeout = null;
     function scheduleLeaderboardSync() {
