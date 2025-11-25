@@ -1470,7 +1470,7 @@
         timingZone.style.left = reelWindowStart + '%';
         timingZone.style.width = (reelWindowEnd - reelWindowStart) + '%';
 
-        const biteDelay = 1000 + Math.random() * 2000;
+        const biteDelay = 500 + Math.random() * 800; 
         if (biteTimeout) clearTimeout(biteTimeout);
         biteTimeout = setTimeout(() => {
             if (!timingGameActive) return;
@@ -1480,7 +1480,7 @@
         }, biteDelay);
 
         const stepMs = 40;
-        const speedPercentPerStep = 2;
+        const speedPercentPerStep = 3.5;
 
         if (timingBarInterval) clearInterval(timingBarInterval);
         timingBarInterval = setInterval(() => {
@@ -1498,7 +1498,7 @@
             timingBar.style.left = currentTimingPosition + '%';
         }, stepMs);
 
-        const failTimeout = 7000;
+        const failTimeout = 4000;
         setTimeout(() => {
             if (timingGameActive) {
                 timingInstructions.textContent = 'Too slow! The fish escaped.';
