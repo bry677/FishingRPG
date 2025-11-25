@@ -1577,11 +1577,11 @@
 
     // --- Discord Login button with error handling for server issues ---
     function loginWithDiscord() {
-        // Values for Discord OAuth2
-        const DISCORD_CLIENT_ID = "1441942057051754646";
-        const REDIRECT_URI = "https://bry677.github.io/FishingRPG/auth/discord.html"; // where discord.html is hosted
 
-        // Compose the Discord OAuth2 URL
+        const DISCORD_CLIENT_ID = "1441942057051754646";
+
+        const REDIRECT_URI = "https://bry677.github.io/FishingRPG/auth/discord.html";
+
         const url =
             "https://discord.com/api/oauth2/authorize" +
             "?client_id=" + encodeURIComponent(DISCORD_CLIENT_ID) +
@@ -1589,19 +1589,7 @@
             "&response_type=code" +
             "&scope=identify";
 
-        // Before redirecting, show user a message if connection to backend will fail
-        // This check is only front-end: it cannot guarantee backend is up, but can catch common network issues
-        fetch(REDIRECT_URI, { method: "HEAD", mode: "no-cors" })
-            .then(() => {
-                window.location.href = url;
-            })
-            .catch(() => {
-                alert(
-                    "Hmm. We’re having trouble finding that site.\n\n" +
-                    "We can’t connect to the server at your_cloud_function_url.\n\n" +
-                    "Please check your connection or try again later."
-                );
-            });
+        window.location.href = url;
     }
     window.loginWithDiscord = loginWithDiscord;
 

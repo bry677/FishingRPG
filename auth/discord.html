@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Discord Login</title>
-<script>
-const params = new URLSearchParams(window.location.search);
-const code = params.get("code");
-
-if (!code) {
-    document.body.innerHTML = "Discord login failed: No code received.";
-} else {
-    // Redirect to Firebase cloud function
-    window.location.href = 
-        "https://YOUR_CLOUD_FUNCTION_URL/discordAuth?code=" + code;
-}
-</script>
+    <meta charset="utf-8">
+    <title>Connecting Discord...</title>
 </head>
-<body>
+<body style="font-family:Arial;padding:20px;">
+    <h2>Connecting your Discord account...</h2>
+    <p>Please wait...</p>
+
+    <script>
+        // Read the `code` sent from Discord OAuth
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+
+        if (!code) {
+            document.body.innerHTML = "<h2>Error: Missing Discord OAuth code.</h2>";
+        } else {
+            // YOUR REAL FUNCTION URL
+            const FUNCTION_URL = "https://us-central1-fishingrpg.cloudfunctions.net/discordAuth";
+
+            // Redirect to Firebase Cloud Function
+            window.location.href = FUNCTION_URL + "?code=" + encodeURIComponent(code);
+        }
+    </script>
 </body>
 </html>
+
