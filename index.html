@@ -1712,11 +1712,21 @@
     let username = localStorage.getItem('fishingRPG_username');
 
     if (discordName) {
-        const trimmed = discordName.trim();
-        if (trimmed) {
-            username = trimmed;
-            localStorage.setItem('fishingRPG_username', username);
-        }
+
+        username = discordName.trim();
+
+        if (!username) username = "DiscordUser";
+
+        localStorage.setItem('fishingRPG_username', username);
+
+        // Force cloud & leaderboard sync with Discord username
+
+        window.fishingUsername = username;
+
+        scheduleLeaderboardSync();
+
+        syncCloudSave();
+
     }
 
     if (!username) {
@@ -1835,7 +1845,7 @@
         const biggest = (window.getBiggestCatchKg && window.getBiggestCatchKg()) || 0;
         const userRef = ref(db, "leaderboard/" + user.uid);
         set(userRef, {
-            username: username,
+            username: window.fishingUsername || username, // Prefer Discord name
             level: gs.level || 1,
             totalFish: gs.totalFish || 0,
             gold: gs.gold || 0,
