@@ -1794,36 +1794,75 @@
     let triedDiscordToken = false;
 
     onAuthStateChanged(auth, async (user) => {
+
         if (!user) {
+
             if (!triedDiscordToken && discordToken) {
+
                 triedDiscordToken = true;
+
                 try {
+
                     await signInWithCustomToken(auth, discordToken);
+
                     return;
+
                 } catch (err) {
+
                     console.error("Discord custom token failed, falling back to anonymous:", err);
+
                 }
+
             }
 
+
+
             signInAnonymously(auth).catch(err => console.error("Anon auth error:", err));
+
             return;
+
         }
+
+
+
+        // Logged in
 
         window.fishingUserId = user.uid;
 
-        const saveRef = ref(db, "saves/" + user.uid);
-        try {
-            const snap = await get(saveRef);
-            if (snap.exists()) {
-                applyCloudSave(snap.val());
-            } else {
-                if (window.gameState) syncCloudSave();
+
+
+        // 🔥🔥🔥 ADD THIS — SYNC DISCORD USERNAME AFTER LOGIN 🔥🔥🔥
+
+        if (discordName) {
+
+            const trimmed = discordName.trim();
+
+            if (trimmed) {
+
+                username = trimmed;
+
+                localStorage.setItem("fishingRPG_username", username);
+
+
+
+                // Update UI name
+
+                const nameEl = document.getElementById("accountName");
+
+                if (nameEl) nameEl.textContent = username;
+
+
+
+                // Force immediate leaderboard update
+
+                if (window.scheduleLeaderboardSync)
+
+                    window.scheduleLeaderboardSync();
+
             }
-        } catch (err) {
-            console.error("Error loading cloud save:", err);
+
         }
 
-        if (window.scheduleLeaderboardSync) window.scheduleLeaderboardSync();
     });
 
     // ---------- Leaderboard (keyed by UID) ----------
