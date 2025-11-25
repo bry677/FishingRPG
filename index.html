@@ -1910,17 +1910,47 @@
     const lbRef = ref(db, "leaderboard");
     const lbQuery = query(lbRef, orderByChild("level"), limitToLast(100));
     onValue(lbQuery, snapshot => {
+
         const val = snapshot.val() || {};
-        const players = Object.values(val);
+
+
+
+        // FIX: include UID with each entry
+
+        const players = Object.keys(val).map(uid => ({
+
+            uid,
+
+            ...val[uid]
+
+        }));
+
+
+
         players.sort((a, b) => {
+
             const la = a.level || 0, lbv = b.level || 0;
+
             if (lbv !== la) return lbv - la;
+
+
+
             const fa = a.totalFish || 0, fb = b.totalFish || 0;
+
             if (fb !== fa) return fb - fa;
+
+
+
             const ba = a.biggestCatchKg || 0, bb = b.biggestCatchKg || 0;
+
             return bb - ba;
+
         });
+
+
+
         if (window.setLeaderboardData) window.setLeaderboardData(players);
+
     });
 
     // ---------- Global Chat ----------
