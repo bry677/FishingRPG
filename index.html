@@ -1534,12 +1534,9 @@
         saveGame();
 
         setTimeout(() => {
-            if (status) status.textContent = 'A fish is nibbling... get ready!';
-            setTimeout(() => {
-                startTimingGame();
-                if (status) status.textContent = 'Watch the bar and REEL IN!';
-            }, 700);
-        }, 700);
+            startTimingGame();
+            if (status) status.textContent = 'Watch the bar and REEL IN!';
+        }, 400);
     }
     window.goFishing = goFishing;
 
@@ -1919,4 +1916,3 @@
 </script>
 </body>
 </html>
-
