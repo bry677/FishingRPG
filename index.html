@@ -1798,6 +1798,9 @@
 
     onAuthStateChanged(auth, async (user) => {
 
+        // ---------------------------
+        // 1. NOT LOGGED IN YET
+        // ---------------------------
         if (!user) {
 
             if (!triedDiscordToken && discordToken) {
@@ -1805,51 +1808,60 @@
 
                 try {
                     await signInWithCustomToken(auth, discordToken);
-                    return;
+                    return; // wait for next auth state
                 } catch (err) {
-                    console.error("Discord custom token failed, falling back to anonymous:", err);
+                    console.error("Discord login failed:", err);
                 }
             }
 
-            signInAnonymously(auth).catch(err => console.error("Anon auth error:", err));
+            signInAnonymously(auth);
             return;
         }
 
-        // Logged in
+        // ---------------------------
+        // 2. WE NOW HAVE A VALID UID
+        // ---------------------------
+        console.log("AUTH READY. UID =", user.uid);
         window.fishingUserId = user.uid;
 
-        // --- Sync Discord username ---
-        if (discordName) {
+        // ---------------------------
+        // 3. APPLY DISCORD NAME
+        // ---------------------------
+        if (discordName && discordName.trim()) {
 
-            const trimmed = discordName.trim();
+            username = discordName.trim();
+            window.fishingUsername = username;
 
-            if (trimmed) {
+            localStorage.setItem("fishingRPG_username", username);
 
-                username = trimmed;
-                window.fishingUsername = username;
+            const nameEl = document.getElementById("accountName");
+            if (nameEl) nameEl.textContent = username;
 
-                // save + update UI
-                localStorage.setItem("fishingRPG_username", username);
+            // Safe to sync now (UID exists)
+            syncLeaderboardNow();
+        }
 
-                const nameEl = document.getElementById("accountName");
+        // ---------------------------
+        // 4. LOAD CLOUD SAVE
+        // ---------------------------
+        try {
+            const saveSnap = await get(ref(db, "saves/" + user.uid));
 
-                if (nameEl) nameEl.textContent = username;
-
-                // 🔥 IMMEDIATE leaderboard sync (correct name)
-                if (window.syncLeaderboardNow) window.syncLeaderboardNow();
-
-                syncLeaderboardNow();
-
-                return; // IMPORTANT: stop here so fallback sync does NOT run
-
+            if (saveSnap.exists()) {
+                applyCloudSave(saveSnap.val());
+            } else {
+                syncCloudSave();
             }
 
+        } catch (err) {
+            console.error("Cloud save load failed:", err);
         }
 
-        // 🔥 IMPORTANT: Force leaderboard update AFTER login
-        if (!discordName) {
-            scheduleLeaderboardSync();
-        }
+        // ---------------------------
+        // 5. ALWAYS SYNC LEADERBOARD AFTER DATA LOADS
+        // ---------------------------
+        scheduleLeaderboardSync();
+
     });
 
     // ---------- Leaderboard (keyed by UID) ----------
