@@ -294,7 +294,6 @@
             color: #333;
         }
 
-        /* Inventory fish icon size adjustment */
         .small-fish-icon {
             width: 24px;
             height: 24px;
@@ -739,7 +738,6 @@
         { name: 'Minnow',  rarity: 'common',    xp: 1,  gold: 1,  energy: 5,  icon: 'img/minnow-fish.png',  minWeightKg: 0.1, maxWeightKg: 0.4 },
         { name: 'Perch',   rarity: 'common',    xp: 2,  gold: 2,  energy: 5,  icon: 'img/perch-fish.png',   minWeightKg: 0.3, maxWeightKg: 0.8 },
         { name: 'Bass',    rarity: 'uncommon',  xp: 5,  gold: 5,  energy: 8,  icon: 'img/bass-fish.png',    minWeightKg: 0.8, maxWeightKg: 2.5 },
-        // Fixed icon file name to remove accented character, was 'salmón.png'
         { name: 'Salmon',  rarity: 'uncommon',  xp: 8,  gold: 8,  energy: 8,  icon: 'img/salmon.png',       minWeightKg: 1.0, maxWeightKg: 3.5 },
         { name: 'Tuna',    rarity: 'rare',      xp: 15, gold: 15, energy: 10, icon: 'img/tuna-fish.png',    minWeightKg: 5.0, maxWeightKg: 30.0 },
         { name: 'Marlin',  rarity: 'rare',      xp: 25, gold: 30, energy: 12, icon: 'img/marlin-fish.png',  minWeightKg: 20.0, maxWeightKg: 80.0 },
@@ -867,7 +865,6 @@
             messageDiv.classList.add('catch-fail');
         }
 
-        // Optional: auto-clear after a while
         setTimeout(() => {
             messageDiv.textContent = '';
             messageDiv.classList.remove('catch-success', 'catch-fail');
@@ -936,6 +933,46 @@
         `;
     }
 
+    function setLeaderboardData(players) {
+        const container = document.getElementById('leaderboardContent');
+        if (!container) return;
+
+        if (!players || players.length === 0) {
+            container.innerHTML = '<p style="color:#999;text-align:center;padding:15px;">No leaderboard data yet.</p>';
+            return;
+        }
+
+        let html = `
+            <table style="width:100%;border-collapse:collapse;font-size:0.9em;">
+                <thead>
+                    <tr style="background:#e9ecef;">
+                        <th style="padding:6px;border-bottom:1px solid #ccc;text-align:left;">#</th>
+                        <th style="padding:6px;border-bottom:1px solid #ccc;text-align:left;">Player</th>
+                        <th style="padding:6px;border-bottom:1px solid #ccc;text-align:right;">Level</th>
+                        <th style="padding:6px;border-bottom:1px solid #ccc;text-align:right;">Total Fish</th>
+                        <th style="padding:6px;border-bottom:1px solid #ccc;text-align:right;">Best (kg)</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        players.forEach((p, idx) => {
+            html += `
+                <tr>
+                    <td style="padding:4px;border-bottom:1px solid #eee;">${idx + 1}</td>
+                    <td style="padding:4px;border-bottom:1px solid #eee;">${(p.username || 'Player')}</td>
+                    <td style="padding:4px;border-bottom:1px solid #eee;text-align:right;">${p.level || 0}</td>
+                    <td style="padding:4px;border-bottom:1px solid #eee;text-align:right;">${p.totalFish || 0}</td>
+                    <td style="padding:4px;border-bottom:1px solid #eee;text-align:right;">${(p.biggestCatchKg || 0).toFixed ? p.biggestCatchKg.toFixed(2) : p.biggestCatchKg || 0}</td>
+                </tr>
+            `;
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+    window.setLeaderboardData = setLeaderboardData;
+
     function updateUI() {
         try {
             const lvlEl = document.getElementById('playerLevel');
@@ -979,7 +1016,6 @@
             renderEquipment();
             updateEnvironmentUI();
 
-            // Let the Firebase/leaderboard module sync if it wants to
             if (typeof window.scheduleLeaderboardSync === 'function') {
                 window.scheduleLeaderboardSync();
             }
@@ -1008,6 +1044,7 @@
         if (tabName === 'encyclopedia') renderEncyclopedia();
         if (tabName === 'fishing') updateUI();
     }
+    window.switchTab = switchTab;
 
     // -------------------- Shop --------------------
     function renderShop() {
@@ -1067,6 +1104,7 @@
 
         shopContent.innerHTML = html;
     }
+    window.renderShop = renderShop;
 
     function buyRod(rodName) {
         const rod = equipmentDatabase.rods.find(r => r.name === rodName);
@@ -1086,6 +1124,7 @@
             saveGame();
         }
     }
+    window.buyRod = buyRod;
 
     function equipRod(rodName) {
         const rod = equipmentDatabase.rods.find(r => r.name === rodName);
@@ -1101,6 +1140,7 @@
             saveGame();
         }
     }
+    window.equipRod = equipRod;
 
     function buyBait(baitName) {
         const bait = equipmentDatabase.baits.find(b => b.name === baitName);
@@ -1120,6 +1160,7 @@
             saveGame();
         }
     }
+    window.buyBait = buyBait;
 
     function equipBait(baitName) {
         const bait = equipmentDatabase.baits.find(b => b.name === baitName);
@@ -1134,6 +1175,7 @@
             saveGame();
         }
     }
+    window.equipBait = equipBait;
 
     // -------------------- Sell --------------------
     function renderSell() {
@@ -1176,6 +1218,7 @@
 
         sellContent.innerHTML = html;
     }
+    window.renderSell = renderSell;
 
     function sellFish(fishName, quantity) {
         const fish = fishDatabase.find(f => f.name === fishName);
@@ -1193,6 +1236,7 @@
             saveGame();
         }
     }
+    window.sellFish = sellFish;
 
     // -------------------- Locations --------------------
     function renderLocations() {
@@ -1230,6 +1274,7 @@
 
         container.innerHTML = html;
     }
+    window.renderLocations = renderLocations;
 
     function travelToLocation(locId) {
         const loc = locations.find(l => l.id === locId);
@@ -1244,6 +1289,7 @@
         updateUI();
         saveGame();
     }
+    window.travelToLocation = travelToLocation;
 
     // -------------------- Encyclopedia --------------------
     function renderEncyclopedia() {
@@ -1286,8 +1332,9 @@
 
         container.innerHTML = html;
     }
+    window.renderEncyclopedia = renderEncyclopedia;
 
-    // -------------------- Fishing Logic (simplified) --------------------
+    // -------------------- Fishing Logic --------------------
     function pickRarity() {
         const loc = getCurrentLocation();
         const roll = Math.random() * 100;
@@ -1337,7 +1384,6 @@
     }
 
     function attemptCatch() {
-        // 15% chance of no catch
         if (Math.random() < 0.15) {
             showMessage('The fish got away... 🐟💨', 'fail');
             updateUI();
@@ -1348,12 +1394,10 @@
         const rarity = pickRarity();
         let fish = pickFishByRarity(rarity);
 
-        // Very simple catch bonus: rod + bait adds up to improve rarity a bit
         const bonus = (gameState.equipment.rod.catchBonus || 0) +
                       (gameState.equipment.bait.catchBonus || 0);
 
         if (bonus > 0 && Math.random() < bonus / 300) {
-            // Try to bump to a higher rarity
             const order = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
             const idx = Math.min(order.indexOf(rarity) + 1, order.length - 1);
             fish = pickFishByRarity(order[idx]);
@@ -1363,18 +1407,15 @@
             fish.minWeightKg +
             Math.random() * (fish.maxWeightKg - fish.minWeightKg);
 
-        // Update inventory
         if (!gameState.inventory[fish.name]) {
             gameState.inventory[fish.name] = 0;
         }
         gameState.inventory[fish.name] += 1;
         gameState.totalFish += 1;
 
-        // XP / gold
         applyLevelUp(fish.xp);
         gameState.gold += fish.gold;
 
-        // Stats
         recordFishStats(fish, weightKg);
 
         showMessage(
@@ -1402,7 +1443,6 @@
         updateUI();
         saveGame();
 
-        // Simulate waiting a bit before catch
         setTimeout(() => {
             if (status) status.textContent = 'Reeling in...';
             setTimeout(() => {
@@ -1411,8 +1451,13 @@
             }, 600);
         }, 700);
     }
-
     window.goFishing = goFishing;
+
+    function reelIn() {
+        // Stub in case you later hook up timing mini-game
+        attemptCatch();
+    }
+    window.reelIn = reelIn;
 
     // -------------------- Save / Load --------------------
     function saveGame() {
@@ -1422,6 +1467,7 @@
             console.error('Error saving game:', e);
         }
     }
+    window.saveGame = saveGame;
 
     function loadGame() {
         try {
@@ -1430,10 +1476,8 @@
             const data = JSON.parse(raw);
             if (typeof data !== 'object' || !data) return;
 
-            // Merge into default gameState to avoid missing fields
             gameState = Object.assign({}, gameState, data);
 
-            // Ensure required objects exist
             if (!gameState.inventory) gameState.inventory = {};
             if (!gameState.equipment) {
                 gameState.equipment = {
@@ -1452,17 +1496,17 @@
 
             window.gameState = gameState;
 
-            // Mark owned rods/baits on the databases
             equipmentDatabase.rods.forEach(r => {
-                r.owned = gameState.ownedEquipment.rods && gameState.ownedEquipment.rods.includes(r.name) || r.price === 0;
+                r.owned = (gameState.ownedEquipment.rods && gameState.ownedEquipment.rods.includes(r.name)) || r.price === 0;
             });
             equipmentDatabase.baits.forEach(b => {
-                b.owned = gameState.ownedEquipment.baits && gameState.ownedEquipment.baits.includes(b.name) || b.price === 0;
+                b.owned = (gameState.ownedEquipment.baits && gameState.ownedEquipment.baits.includes(b.name)) || b.price === 0;
             });
         } catch (e) {
             console.error('Error loading game:', e);
         }
     }
+    window.loadGame = loadGame;
 
     // -------------------- Energy Regen --------------------
     function startEnergyRegen() {
@@ -1475,7 +1519,7 @@
                 updateUI();
                 saveGame();
             }
-        }, 5000); // +1 energy every 5 seconds
+        }, 5000);
     }
 
     // -------------------- Init --------------------
@@ -1493,14 +1537,6 @@
     window.addEventListener('DOMContentLoaded', function () {
         try {
             initGame();
-            // Expose functions for inline onclick handlers
-            window.switchTab = switchTab;
-            window.buyRod = buyRod;
-            window.equipRod = equipRod;
-            window.buyBait = buyBait;
-            window.equipBait = equipBait;
-            window.sellFish = sellFish;
-            window.travelToLocation = travelToLocation;
         } catch (e) {
             console.error('Error initializing game:', e);
             alert('Error loading game. Please refresh the page.');
@@ -1571,15 +1607,12 @@
     }
     window.fishingUsername = username;
 
-    // Show it in header
     const accountNameEl = document.getElementById("accountName");
     if (accountNameEl) accountNameEl.textContent = username;
 
-    // --- Discord Login button with error handling for server issues ---
+    // --- Discord Login button ---
     function loginWithDiscord() {
-
         const DISCORD_CLIENT_ID = "1441942057051754646";
-
         const REDIRECT_URI = "https://bry677.github.io/FishingRPG/auth/discord.html";
 
         const url =
@@ -1643,7 +1676,7 @@
                 triedDiscordToken = true;
                 try {
                     await signInWithCustomToken(auth, discordToken);
-                    return; // wait for onAuthStateChanged again
+                    return;
                 } catch (err) {
                     console.error("Discord custom token failed, falling back to anonymous:", err);
                 }
@@ -1756,7 +1789,6 @@
         input.value = "";
     };
 
-    // Initial UI refresh once everything is set up
     if (window.updateUI) window.updateUI();
 </script>
 </body>
