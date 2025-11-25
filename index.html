@@ -4,21 +4,1667 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FishingRPG - Your Fishing Adventure</title>
-    <!-- ...Styles unchanged for brevity... -->
     <style>
-        /* ...Styles omitted for brevity, unchanged... */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+            padding: 20px;
+        }
+
+        .game-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr 300px;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .panel h3 {
+            color: #2193b0;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #2193b0;
+            padding-bottom: 5px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+
+        .stat-label {
+            color: #666;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #2193b0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2193b0, #6dd5ed);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .main-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .fishing-zone {
+            background: linear-gradient(180deg, #87ceeb 0%, #4682b4 100%);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.5s ease;
+        }
+
+        .water-animation {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: rgba(135, 206, 235, 0.3);
+            animation: wave 3s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes wave {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .fish-icon {
+            font-size: 4em;
+            margin: 20px 0;
+            animation: float 2s ease-in-out infinite;
+            position: relative;
+            z-index: 5;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .fish-button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+            margin-top: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .fish-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .fish-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .catch-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            min-height: 30px;
+        }
+
+        .catch-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .catch-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .timing-game {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .timing-game.active {
+            display: block;
+        }
+
+        .timing-bar-container {
+            width: 100%;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .timing-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            width: 4px;
+            position: absolute;
+            left: 0;
+            transition: left 0.05s linear;
+            border-radius: 2px;
+        }
+
+        .timing-zone {
+            position: absolute;
+            height: 100%;
+            background: rgba(46, 213, 115, 0.4);
+            border: 2px solid #2ed573;
+            border-radius: 20px;
+        }
+
+        .timing-instructions {
+            color: white;
+            text-align: center;
+            font-size: 1.1em;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .bite-indicator {
+            color: #ff6b6b;
+            font-size: 1.5em;
+            text-align: center;
+            margin: 10px 0;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
+        }
+
+        .inventory {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+
+        .inventory-item-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .small-fish-icon {
+            width: 24px;
+            height: 24px;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        .inventory-item-count {
+            background: #2193b0;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+
+        .equipment-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .equipment-item:hover {
+            border-color: #2193b0;
+        }
+
+        .equipment-item.equipped {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .equipment-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .equipment-stats {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .level-up {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            color: #2193b0;
+            border-bottom-color: #2193b0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .shop-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 5px;
+            border: 2px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shop-item-info {
+            flex: 1;
+        }
+
+        .shop-item-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .shop-item-desc {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .shop-item-price {
+            font-weight: bold;
+            color: #f5576c;
+            margin-right: 10px;
+        }
+
+        .buy-button {
+            padding: 8px 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .buy-button:hover:not(:disabled) {
+            background: #218838;
+        }
+
+        .buy-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .sell-button {
+            padding: 5px 10px;
+            background: #f5576c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            margin-left: 5px;
+        }
+
+        .sell-button:hover {
+            background: #e63946;
+        }
+
+        .location-card {
+            padding: 12px;
+            margin: 8px 0;
+            background: #ffffff;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .location-card.current {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .location-info {
+            max-width: 70%;
+        }
+
+        .location-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .location-meta {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .enc-item {
+            padding: 10px;
+            margin: 6px 0;
+            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .enc-main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .enc-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .enc-rare-common {
+            color: #6c757d;
+        }
+
+        .enc-rare-uncommon {
+            color: #28a745;
+        }
+
+        .enc-rare-rare {
+            color: #007bff;
+        }
+
+        .enc-rare-epic {
+            color: #6f42c1;
+        }
+
+        .enc-rare-legendary {
+            color: #d39e00;
+        }
+
+        .enc-stats {
+            font-size: 0.8em;
+            color: #555;
+            text-align: right;
+        }
+
+        .small-fish-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 968px) {
+            .game-layout {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- ...HTML markup unchanged for brevity... -->
-    <!-- Everything up to the scripts is unchanged -->
+    <div class="header">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <h1>🎣 FishingRPG</h1>
+                <p>Cast your line and catch the big one!</p>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:0.9em;margin-bottom:4px;">
+                    Logged in as: <span id="accountName">…</span>
+                </div>
+                <button
+                    onclick="loginWithDiscord()"
+                    style="padding:6px 12px;border-radius:999px;border:none;
+                           background:#5865F2;color:white;font-weight:600;
+                           cursor:pointer;font-size:0.9em;">
+                    Login with Discord
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-layout">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="panel">
+                <h3>Player Stats</h3>
+                <div class="stat-item">
+                    <span class="stat-label">Level</span>
+                    <span class="stat-value" id="playerLevel">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Experience</span>
+                    <span class="stat-value" id="playerXP">0 / 100</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="xpBar" style="width: 0%">0%</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Energy</span>
+                    <span class="stat-value" id="playerEnergy">100 / 100</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="energyBar" style="width: 100%">100%</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Gold</span>
+                    <span class="stat-value" id="playerGold">50</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Fish</span>
+                    <span class="stat-value" id="totalFish">0</span>
+                </div>
+                <hr style="margin:10px 0; border:none; border-top:1px solid #ddd;">
+                <div class="stat-item">
+                    <span class="stat-label">Location</span>
+                    <span class="stat-value" id="currentLocationLabel">Sunny Lake</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Time</span>
+                    <span class="stat-value" id="timeOfDayLabel">Day</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Weather</span>
+                    <span class="stat-value" id="weatherLabel">Clear</span>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Equipment</h3>
+                <div id="equipmentList"></div>
+            </div>
+        </div>
+
+        <!-- Middle: Tabs + content -->
+        <div class="main-area">
+            <div class="panel">
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchTab('fishing', this)">🎣 Fishing</button>
+                    <button class="tab-button" onclick="switchTab('shop', this)">🛒 Shop</button>
+                    <button class="tab-button" onclick="switchTab('sell', this)">💰 Sell Fish</button>
+                    <button class="tab-button" onclick="switchTab('locations', this)">🗺️ Locations</button>
+                    <button class="tab-button" onclick="switchTab('encyclopedia', this)">📖 Encyclopedia</button>
+                    <button class="tab-button" onclick="switchTab('leaderboard', this)">🏆 Leaderboard</button>
+                    <button class="tab-button" onclick="switchTab('chat', this)">💬 Chat</button>
+                </div>
+
+                <!-- Fishing Tab -->
+                <div id="fishingTab" class="tab-content active">
+                    <h3>Fishing Zone</h3>
+                    <div class="fishing-zone" id="fishingZone">
+                        <div class="water-animation"></div>
+                        <div class="fish-icon" id="fishIcon">🐟</div>
+                        <p style="color:white;font-size:1.1em;margin:10px 0;" id="fishingStatus">Ready to fish!</p>
+                        <button class="fish-button" id="fishButton" onclick="goFishing()">🎣 Cast Line (10 Energy)</button>
+
+                        <div class="timing-game" id="timingGame">
+                            <div class="bite-indicator" id="biteIndicator" style="display:none;">🎣 BITE!</div>
+                            <div class="timing-instructions" id="timingInstructions">Waiting for a bite...</div>
+                            <div class="timing-bar-container">
+                                <div class="timing-zone" id="timingZone" style="display:none;"></div>
+                                <div class="timing-bar" id="timingBar" style="display:none;"></div>
+                            </div>
+                            <button class="fish-button" id="reelButton" onclick="reelIn()" style="display:none;margin-top:15px;">
+                                🎣 REEL IN!
+                            </button>
+                        </div>
+
+                        <div id="catchMessage"></div>
+                    </div>
+                </div>
+
+                <!-- Shop Tab -->
+                <div id="shopTab" class="tab-content">
+                    <h3>Equipment Shop</h3>
+                    <div id="shopContent"></div>
+                </div>
+
+                <!-- Sell Tab -->
+                <div id="sellTab" class="tab-content">
+                    <h3>Sell Your Fish</h3>
+                    <div id="sellContent"></div>
+                </div>
+
+                <!-- Locations Tab -->
+                <div id="locationsTab" class="tab-content">
+                    <h3>Fishing Locations</h3>
+                    <p style="font-size:0.9em; color:#666; margin-bottom:10px;">
+                        Different locations change energy cost and the chance of rare fish. Some require higher levels to unlock.
+                    </p>
+                    <div id="locationsContent"></div>
+                </div>
+
+                <!-- Encyclopedia Tab -->
+                <div id="encyclopediaTab" class="tab-content">
+                    <h3>Fish Encyclopedia</h3>
+                    <p style="font-size:0.9em; color:#666; margin-bottom:10px;">
+                        Catch fish to discover their entries. Track largest catches and rarity!
+                    </p>
+                    <div id="encyclopediaContent"></div>
+                </div>
+
+                <!-- Leaderboard Tab -->
+                <div id="leaderboardTab" class="tab-content">
+                    <h3>Global Leaderboard</h3>
+                    <p style="font-size:0.9em; color:#666; margin-bottom:10px;">
+                        Top 100 players worldwide. Compete by level, total fish caught, and biggest catch!
+                    </p>
+                    <div id="leaderboardContent">
+                        <p style="color:#999; text-align:center; padding:15px;">Connecting to leaderboard...</p>
+                    </div>
+                </div>
+
+                <!-- Chat Tab -->
+                <div id="chatTab" class="tab-content">
+                    <h3>Global Chat</h3>
+                    <div id="chatMessages"
+                         style="height:260px; overflow-y:auto; background:#ffffff; border:1px solid #ccc; border-radius:8px; padding:10px; margin-bottom:10px;">
+                        <p style="color:#999; text-align:center;">No messages yet...</p>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <input id="chatInput" type="text" placeholder="Type a message..."
+                               style="flex:1; padding:10px; border-radius:6px; border:1px solid #ccc;">
+                        <button onclick="sendChatMessage()"
+                                style="padding:10px 20px; background:#2193b0; color:white; border:none; border-radius:6px; cursor:pointer;">
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar - Inventory -->
+        <div class="sidebar">
+            <div class="panel">
+                <h3>Inventory</h3>
+                <div class="inventory" id="inventoryList">
+                    <p style="color:#999; text-align:center; padding:20px;">No fish caught yet!</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- MAIN GAME SCRIPT (with timing mini-game) -->
 <script>
-    // All JS code before leaderboard sync is unchanged
-    // ... (unmodified code omitted for brevity) ...
+    // -------------------- Game State --------------------
+    const fishDatabase = [
+        { name: 'Minnow',  rarity: 'common',    xp: 1,  gold: 1,  energy: 5,  icon: 'img/minnow.png',  minWeightKg: 0.1, maxWeightKg: 0.4 },
+        { name: 'Perch',   rarity: 'common',    xp: 2,  gold: 2,  energy: 5,  icon: 'img/perch.png',   minWeightKg: 0.3, maxWeightKg: 0.8 },
+        { name: 'Bass',    rarity: 'uncommon',  xp: 5,  gold: 5,  energy: 8,  icon: 'img/bass.png',    minWeightKg: 0.8, maxWeightKg: 2.5 },
+        { name: 'Salmon',  rarity: 'uncommon',  xp: 8,  gold: 8,  energy: 8,  icon: 'img/salmon.png',       minWeightKg: 1.0, maxWeightKg: 3.5 },
+        { name: 'Tuna',    rarity: 'rare',      xp: 15, gold: 15, energy: 10, icon: 'img/tuna.png',    minWeightKg: 5.0, maxWeightKg: 30.0 },
+        { name: 'Marlin',  rarity: 'rare',      xp: 25, gold: 30, energy: 12, icon: 'img/marlin.png',  minWeightKg: 20.0, maxWeightKg: 80.0 },
+        { name: 'Shark',   rarity: 'epic',      xp: 50, gold: 75, energy: 15, icon: 'img/shark.png',        minWeightKg: 50.0, maxWeightKg: 250.0 },
+        { name: 'Golden Fish', rarity: 'legendary', xp: 100, gold: 200, energy: 20, icon: 'img/golden.png', minWeightKg: 2.0, maxWeightKg: 10.0 }
+    ];
+
+    const locations = [
+        {
+            id: 'lake',
+            name: 'Sunny Lake',
+            description: 'Balanced spot for beginners. Lots of common fish, some surprises.',
+            unlockLevel: 1,
+            energyModifier: 1.0,
+            rarityChances: { common: 50, uncommon: 30, rare: 15, epic: 4, legendary: 1 },
+            background: 'linear-gradient(180deg, #87ceeb 0%, #4682b4 100%)'
+        },
+        {
+            id: 'ocean',
+            name: 'Deep Ocean',
+            description: 'Deeper water with more rare and epic fish.',
+            unlockLevel: 5,
+            energyModifier: 1.2,
+            rarityChances: { common: 35, uncommon: 30, rare: 20, epic: 10, legendary: 5 },
+            background: 'linear-gradient(180deg, #4facfe 0%, #003973 100%)'
+        },
+        {
+            id: 'swamp',
+            name: 'Murky Swamp',
+            description: 'Strange waters with lots of uncommon fish.',
+            unlockLevel: 3,
+            energyModifier: 1.1,
+            rarityChances: { common: 30, uncommon: 40, rare: 20, epic: 8, legendary: 2 },
+            background: 'linear-gradient(180deg, #3a7d44 0%, #153b2e 100%)'
+        },
+        {
+            id: 'volcano',
+            name: 'Volcanic Crater',
+            description: 'Dangerous lava lake. Hard to fish, but crazy legendary chances.',
+            unlockLevel: 10,
+            energyModifier: 1.5,
+            rarityChances: { common: 20, uncommon: 25, rare: 25, epic: 15, legendary: 15 },
+            background: 'linear-gradient(180deg, #ff512f 0%, #dd2476 100%)'
+        }
+    ];
+
+    const equipmentDatabase = {
+        rods: [
+            { name: 'Basic Rod',    catchBonus: 0,  energyCost: 10, price: 0,    owned: true },
+            { name: 'Wooden Rod',   catchBonus: 5,  energyCost: 9,  price: 100,  owned: false },
+            { name: 'Steel Rod',    catchBonus: 15, energyCost: 8,  price: 500,  owned: false },
+            { name: 'Titanium Rod', catchBonus: 30, energyCost: 7,  price: 2000, owned: false }
+        ],
+        baits: [
+            { name: 'No Bait',    catchBonus: 0,  price: 0,    owned: true },
+            { name: 'Worm',       catchBonus: 10, price: 50,   owned: false },
+            { name: 'Lure',       catchBonus: 25, price: 200,  owned: false },
+            { name: 'Magic Bait', catchBonus: 50, price: 1000, owned: false }
+        ]
+    };
+
+    let gameState = {
+        level: 1,
+        xp: 0,
+        xpToNext: 100,
+        energy: 100,
+        maxEnergy: 100,
+        gold: 50,
+        totalFish: 0,
+        inventory: {},
+        equipment: {
+            rod: { name: 'Basic Rod', catchBonus: 0, energyCost: 10 },
+            bait: { name: 'No Bait', catchBonus: 0 }
+        },
+        ownedEquipment: { rods: ['Basic Rod'], baits: ['No Bait'] },
+        environment: { timeOfDay: 'Day', weather: 'Clear' },
+        currentLocationId: 'lake',
+        fishStats: {},
+        casts: 0
+    };
+
+    window.gameState = gameState;
+
+    // -------------------- Helpers --------------------
+    function getCurrentLocation() {
+        return locations.find(l => l.id === gameState.currentLocationId) || locations[0];
+    }
+
+    function getCurrentEnergyCost() {
+        const loc = getCurrentLocation();
+        const base = gameState.equipment.rod.energyCost || 10;
+        return Math.ceil(base * (loc.energyModifier || 1));
+    }
+
+    function randomizeEnvironment() {
+        const timeOfDay = Math.random() < 0.5 ? 'Day' : 'Night';
+        const roll = Math.random() * 100;
+        let weather = 'Clear';
+        if (roll < 15) weather = 'Rainy';
+        else if (roll < 25) weather = 'Stormy';
+        else if (roll < 45) weather = 'Cloudy';
+        gameState.environment = { timeOfDay, weather };
+    }
+
+    function getBiggestCatchKg() {
+        let best = 0;
+        if (!gameState.fishStats) return 0;
+        for (const name in gameState.fishStats) {
+            const s = gameState.fishStats[name];
+            if (s && s.bestWeight && s.bestWeight > best) best = s.bestWeight;
+        }
+        return best;
+    }
+    window.getBiggestCatchKg = getBiggestCatchKg;
+
+    function showMessage(text, type) {
+        const messageDiv = document.getElementById('catchMessage');
+        if (!messageDiv) return;
+        messageDiv.textContent = text;
+        messageDiv.classList.remove('catch-success', 'catch-fail');
+
+        if (type === 'success') {
+            messageDiv.classList.add('catch-success');
+        } else if (type === 'fail') {
+            messageDiv.classList.add('catch-fail');
+        }
+
+        setTimeout(() => {
+            messageDiv.textContent = '';
+            messageDiv.classList.remove('catch-success', 'catch-fail');
+        }, 4000);
+    }
+
+    // -------------------- UI Rendering --------------------
+    function updateEnvironmentUI() {
+        const loc = getCurrentLocation();
+        const locLabel = document.getElementById('currentLocationLabel');
+        const timeLabel = document.getElementById('timeOfDayLabel');
+        const weatherLabel = document.getElementById('weatherLabel');
+        const zone = document.getElementById('fishingZone');
+
+        if (locLabel) locLabel.textContent = loc.name;
+        if (timeLabel) timeLabel.textContent = gameState.environment.timeOfDay;
+        if (weatherLabel) weatherLabel.textContent = gameState.environment.weather;
+        if (zone) zone.style.background = loc.background;
+    }
+    window.updateEnvironmentUI = updateEnvironmentUI;
+
+    function renderInventory() {
+        const inventoryList = document.getElementById('inventoryList');
+        const fishNames = Object.keys(gameState.inventory).sort();
+        if (!inventoryList) return;
+
+        if (fishNames.length === 0) {
+            inventoryList.innerHTML =
+                '<p style="color:#999;text-align:center;padding:20px;">No fish caught yet!</p>';
+            return;
+        }
+
+        inventoryList.innerHTML = fishNames.map(fishName => {
+            const fish = fishDatabase.find(f => f.name === fishName);
+            const count = gameState.inventory[fishName];
+            const iconHtml =
+                fish && fish.icon && fish.icon.endsWith('.png')
+                    ? `<img src="${fish.icon}" class="small-fish-icon" alt="${fishName}">`
+                    : '🐟 ';
+
+            return `
+                <div class="inventory-item">
+                    <span class="inventory-item-name">${iconHtml}${fishName}</span>
+                    <span class="inventory-item-count">${count}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderEquipment() {
+        const equipmentList = document.getElementById('equipmentList');
+        if (!equipmentList) return;
+        equipmentList.innerHTML = `
+            <div class="equipment-item equipped">
+                <div class="equipment-name">${gameState.equipment.rod.name}</div>
+                <div class="equipment-stats">
+                    +${gameState.equipment.rod.catchBonus}% catch, base ${gameState.equipment.rod.energyCost} energy
+                </div>
+            </div>
+            <div class="equipment-item equipped">
+                <div class="equipment-name">${gameState.equipment.bait.name}</div>
+                <div class="equipment-stats">
+                    +${gameState.equipment.bait.catchBonus}% catch
+                </div>
+            </div>
+        `;
+    }
+
+    function updateUI() {
+        try {
+            const lvlEl = document.getElementById('playerLevel');
+            const xpEl = document.getElementById('playerXP');
+            const energyEl = document.getElementById('playerEnergy');
+            const goldEl = document.getElementById('playerGold');
+            const totalFishEl = document.getElementById('totalFish');
+
+            if (lvlEl) lvlEl.textContent = gameState.level;
+            if (xpEl) xpEl.textContent = `${gameState.xp} / ${gameState.xpToNext}`;
+            if (energyEl) energyEl.textContent = `${gameState.energy} / ${gameState.maxEnergy}`;
+            if (goldEl) goldEl.textContent = gameState.gold;
+            if (totalFishEl) totalFishEl.textContent = gameState.totalFish;
+
+            const xpPercent = Math.min(100, (gameState.xp / gameState.xpToNext) * 100);
+            const xpBar = document.getElementById('xpBar');
+            if (xpBar) {
+                xpBar.style.width = xpPercent + '%';
+                xpBar.textContent = Math.floor(xpPercent) + '%';
+            }
+
+            const energyPercent = Math.min(100, (gameState.energy / gameState.maxEnergy) * 100);
+            const energyBar = document.getElementById('energyBar');
+            if (energyBar) {
+                energyBar.style.width = energyPercent + '%';
+                energyBar.textContent = Math.floor(energyPercent) + '%';
+            }
+
+            const fishButton = document.getElementById('fishButton');
+            if (fishButton) {
+                const cost = getCurrentEnergyCost();
+                const canFish = gameState.energy >= cost;
+                fishButton.disabled = !canFish;
+                fishButton.textContent = `🎣 Cast Line (${cost} Energy)`;
+                fishButton.title = canFish
+                    ? 'Click to cast your line!'
+                    : `Need ${cost} energy. You have ${gameState.energy}.`;
+            }
+
+            renderInventory();
+            renderEquipment();
+            updateEnvironmentUI();
+
+            if (typeof window.scheduleLeaderboardSync === 'function') {
+                window.scheduleLeaderboardSync();
+            }
+        } catch (e) {
+            console.error('Error updating UI:', e);
+        }
+    }
+    window.updateUI = updateUI;
+
+    // -------------------- Tabs --------------------
+    function switchTab(tabName, element) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        const tabElement = document.getElementById(tabName + 'Tab');
+        if (tabElement) tabElement.classList.add('active');
+        if (element) element.classList.add('active');
+
+        if (tabName === 'shop') renderShop();
+        if (tabName === 'sell') renderSell();
+        if (tabName === 'locations') renderLocations();
+        if (tabName === 'encyclopedia') renderEncyclopedia();
+        if (tabName === 'fishing') updateUI();
+    }
+    window.switchTab = switchTab;
+
+    // -------------------- Shop --------------------
+    function renderShop() {
+        const shopContent = document.getElementById('shopContent');
+        if (!shopContent) return;
+        let html = '<h4 style="margin-bottom: 15px; color: #2193b0;">Fishing Rods</h4>';
+
+        equipmentDatabase.rods.forEach(rod => {
+            const owned = rod.owned || (gameState.ownedEquipment && gameState.ownedEquipment.rods && gameState.ownedEquipment.rods.includes(rod.name));
+            const canAfford = gameState.gold >= rod.price;
+            const isEquipped = gameState.equipment.rod.name === rod.name;
+
+            html += `
+                <div class="shop-item" style="${isEquipped ? 'border-color:#28a745;background:#d4edda;' : ''}">
+                    <div class="shop-item-info">
+                        <div class="shop-item-name">${rod.name} ${isEquipped ? '✓ EQUIPPED' : ''}</div>
+                        <div class="shop-item-desc">
+                            +${rod.catchBonus}% catch rate, base ${rod.energyCost} energy per cast
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;">
+                        <span class="shop-item-price">${rod.price} gold</span>
+                        ${
+                            owned
+                                ? `<button class="buy-button" onclick="buyRod('${rod.name}')" ${isEquipped ? 'disabled' : ''}>Equip</button>`
+                                : `<button class="buy-button" onclick="buyRod('${rod.name}')" ${!canAfford ? 'disabled' : ''}>Buy</button>`
+                        }
+                    </div>
+                </div>
+            `;
+        });
+
+        html += '<h4 style="margin:20px 0 15px 0; color:#2193b0;">Bait</h4>';
+
+        equipmentDatabase.baits.forEach(bait => {
+            const owned = bait.owned || (gameState.ownedEquipment && gameState.ownedEquipment.baits && gameState.ownedEquipment.baits.includes(bait.name));
+            const canAfford = gameState.gold >= bait.price;
+            const isEquipped = gameState.equipment.bait.name === bait.name;
+
+            html += `
+                <div class="shop-item" style="${isEquipped ? 'border-color:#28a745;background:#d4edda;' : ''}">
+                    <div class="shop-item-info">
+                        <div class="shop-item-name">${bait.name} ${isEquipped ? '✓ EQUIPPED' : ''}</div>
+                        <div class="shop-item-desc">+${bait.catchBonus}% catch rate bonus</div>
+                    </div>
+                    <div style="display:flex;align-items:center;">
+                        <span class="shop-item-price">${bait.price} gold</span>
+                        ${
+                            owned
+                                ? `<button class="buy-button" onclick="buyBait('${bait.name}')" ${isEquipped ? 'disabled' : ''}>Equip</button>`
+                                : `<button class="buy-button" onclick="buyBait('${bait.name}')" ${!canAfford ? 'disabled' : ''}>Buy</button>`
+                        }
+                    </div>
+                </div>
+            `;
+        });
+
+        shopContent.innerHTML = html;
+    }
+    window.renderShop = renderShop;
+
+    function buyRod(rodName) {
+        const rod = equipmentDatabase.rods.find(r => r.name === rodName);
+        if (!rod) return;
+        if (gameState.gold >= rod.price) {
+            gameState.gold -= rod.price;
+            if (!gameState.ownedEquipment) gameState.ownedEquipment = { rods: [], baits: [] };
+            if (!gameState.ownedEquipment.rods) gameState.ownedEquipment.rods = [];
+            if (!gameState.ownedEquipment.rods.includes(rodName)) {
+                gameState.ownedEquipment.rods.push(rodName);
+            }
+            rod.owned = true;
+            equipRod(rodName);
+            showMessage('Purchased ' + rodName + '!', 'success');
+            updateUI();
+            renderShop();
+            saveGame();
+        }
+    }
+    window.buyRod = buyRod;
+
+    function equipRod(rodName) {
+        const rod = equipmentDatabase.rods.find(r => r.name === rodName);
+        if (rod && (rod.owned || (gameState.ownedEquipment && gameState.ownedEquipment.rods && gameState.ownedEquipment.rods.includes(rodName)))) {
+            gameState.equipment.rod = {
+                name: rod.name,
+                catchBonus: rod.catchBonus,
+                energyCost: rod.energyCost
+            };
+            renderEquipment();
+            renderShop();
+            updateUI();
+            saveGame();
+        }
+    }
+    window.equipRod = equipRod;
+
+    function buyBait(baitName) {
+        const bait = equipmentDatabase.baits.find(b => b.name === baitName);
+        if (!bait) return;
+        if (gameState.gold >= bait.price) {
+            gameState.gold -= bait.price;
+            if (!gameState.ownedEquipment) gameState.ownedEquipment = { rods: [], baits: [] };
+            if (!gameState.ownedEquipment.baits) gameState.ownedEquipment.baits = [];
+            if (!gameState.ownedEquipment.baits.includes(baitName)) {
+                gameState.ownedEquipment.baits.push(baitName);
+            }
+            bait.owned = true;
+            equipBait(baitName);
+            showMessage('Purchased ' + baitName + '!', 'success');
+            updateUI();
+            renderShop();
+            saveGame();
+        }
+    }
+    window.buyBait = buyBait;
+
+    function equipBait(baitName) {
+        const bait = equipmentDatabase.baits.find(b => b.name === baitName);
+        if (bait && (bait.owned || (gameState.ownedEquipment && gameState.ownedEquipment.baits && gameState.ownedEquipment.baits.includes(baitName)))) {
+            gameState.equipment.bait = {
+                name: bait.name,
+                catchBonus: bait.catchBonus
+            };
+            renderEquipment();
+            renderShop();
+            updateUI();
+            saveGame();
+        }
+    }
+    window.equipBait = equipBait;
+
+    // -------------------- Sell --------------------
+    function renderSell() {
+        const sellContent = document.getElementById('sellContent');
+        if (!sellContent) return;
+
+        const fishNames = Object.keys(gameState.inventory).sort();
+        if (fishNames.length === 0) {
+            sellContent.innerHTML =
+                '<p style="color:#999;text-align:center;padding:20px;">No fish to sell!</p>';
+            return;
+        }
+
+        let html = '';
+        fishNames.forEach(fishName => {
+            const fish = fishDatabase.find(f => f.name === fishName);
+            const count = gameState.inventory[fishName];
+            if (!fish || count <= 0) return;
+
+            const totalValue = fish.gold * count;
+            const iconHtml =
+                fish.icon && fish.icon.endsWith('.png')
+                    ? `<img src="${fish.icon}" class="small-fish-icon" alt="${fishName}">`
+                    : '🐟 ';
+
+            html += `
+                <div class="shop-item">
+                    <div class="shop-item-info">
+                        <div class="shop-item-name">${iconHtml}${fishName} (${count}x)</div>
+                        <div class="shop-item-desc">${fish.gold} gold each</div>
+                    </div>
+                    <div style="display:flex;align-items:center;">
+                        <span class="shop-item-price">${totalValue} gold total</span>
+                        <button class="sell-button" onclick="sellFish('${fishName}',1)">Sell 1</button>
+                        <button class="sell-button" onclick="sellFish('${fishName}',${count})">Sell All</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        sellContent.innerHTML = html;
+    }
+    window.renderSell = renderSell;
+
+    function sellFish(fishName, quantity) {
+        const fish = fishDatabase.find(f => f.name === fishName);
+        if (!fish) return;
+        const count = gameState.inventory[fishName] || 0;
+        const sellCount = Math.min(quantity, count);
+        if (sellCount > 0) {
+            gameState.inventory[fishName] -= sellCount;
+            if (gameState.inventory[fishName] <= 0) delete gameState.inventory[fishName];
+            const goldEarned = fish.gold * sellCount;
+            gameState.gold += goldEarned;
+            showMessage(`Sold ${sellCount}x ${fishName} for ${goldEarned} gold!`, 'success');
+            updateUI();
+            renderSell();
+            saveGame();
+        }
+    }
+    window.sellFish = sellFish;
+
+    // -------------------- Locations --------------------
+    function renderLocations() {
+        const container = document.getElementById('locationsContent');
+        if (!container) return;
+        const current = getCurrentLocation();
+        let html = '';
+
+        locations.forEach(loc => {
+            const isCurrent = loc.id === current.id;
+            const locked = gameState.level < loc.unlockLevel;
+            html += `
+                <div class="location-card ${isCurrent ? 'current' : ''}">
+                    <div class="location-info">
+                        <div class="location-name">${loc.name} ${isCurrent ? '✓ CURRENT' : ''}</div>
+                        <div class="location-meta">
+                            Req. Level ${loc.unlockLevel} · Energy x${loc.energyModifier.toFixed(2)}
+                        </div>
+                        <div class="location-meta">
+                            Rarity: C ${loc.rarityChances.common}% / U ${loc.rarityChances.uncommon}% /
+                            R ${loc.rarityChances.rare}% / E ${loc.rarityChances.epic}% / L ${loc.rarityChances.legendary}%
+                        </div>
+                        <div class="location-meta" style="margin-top:4px;">${loc.description}</div>
+                    </div>
+                    <div>
+                        <button class="buy-button"
+                            onclick="travelToLocation('${loc.id}')"
+                            ${locked || isCurrent ? 'disabled' : ''}>
+                            ${locked ? 'Locked' : 'Travel'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+    window.renderLocations = renderLocations;
+
+    function travelToLocation(locId) {
+        const loc = locations.find(l => l.id === locId);
+        if (!loc) return;
+        if (gameState.level < loc.unlockLevel) {
+            showMessage(`You need level ${loc.unlockLevel} to travel here.`, 'fail');
+            return;
+        }
+        gameState.currentLocationId = loc.id;
+        showMessage(`Traveled to ${loc.name}!`, 'success');
+        renderLocations();
+        updateUI();
+        saveGame();
+    }
+    window.travelToLocation = travelToLocation;
+
+    // -------------------- Encyclopedia --------------------
+    function renderEncyclopedia() {
+        const container = document.getElementById('encyclopediaContent');
+        if (!container) return;
+
+        let html = '';
+        fishDatabase.forEach(fish => {
+            const stats = gameState.fishStats[fish.name] || {
+                totalCaught: 0,
+                bestWeight: 0
+            };
+
+            const rarityClass = {
+                common: 'enc-rare-common',
+                uncommon: 'enc-rare-uncommon',
+                rare: 'enc-rare-rare',
+                epic: 'enc-rare-epic',
+                legendary: 'enc-rare-legendary'
+            }[fish.rarity] || 'enc-rare-common';
+
+            const iconHtml =
+                fish.icon && fish.icon.endsWith('.png')
+                    ? `<img src="${fish.icon}" class="small-fish-icon" alt="${fish.name}">`
+                    : '🐟 ';
+
+            html += `
+                <div class="enc-item">
+                    <div class="enc-main">
+                        <div class="enc-name">${iconHtml}${fish.name}</div>
+                        <div class="${rarityClass}">${fish.rarity.toUpperCase()}</div>
+                    </div>
+                    <div class="enc-stats">
+                        <div>Caught: ${stats.totalCaught || 0}</div>
+                        <div>Best: ${stats.bestWeight ? stats.bestWeight.toFixed(2) + ' kg' : '-'}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+    window.renderEncyclopedia = renderEncyclopedia;
+
+    // -------------------- Fishing Logic with Timing Minigame --------------------
+    let timingGameActive = false;
+    let timingBarInterval = null;
+    let currentTimingPosition = 0;
+    let timingDirection = 1;
+    let biteTimeout = null;
+    let reelWindowStart = 0;
+    let reelWindowEnd = 0;
+
+    function pickRarity() {
+        const loc = getCurrentLocation();
+        const roll = Math.random() * 100;
+
+        let acc = 0;
+        for (const [rarity, chance] of Object.entries(loc.rarityChances)) {
+            acc += chance;
+            if (roll <= acc) return rarity;
+        }
+        return 'common';
+    }
+
+    function pickFishByRarity(rarity) {
+        const candidates = fishDatabase.filter(f => f.rarity === rarity);
+        if (candidates.length === 0) {
+            return fishDatabase[0];
+        }
+        return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
+    function applyLevelUp(xpGain) {
+        gameState.xp += xpGain;
+        let leveled = false;
+        while (gameState.xp >= gameState.xpToNext) {
+            gameState.xp -= gameState.xpToNext;
+            gameState.level += 1;
+            gameState.xpToNext = Math.round(gameState.xpToNext * 1.3);
+            leveled = true;
+        }
+        if (leveled) {
+            showMessage('📈 Level up! You reached level ' + gameState.level + '!', 'success');
+        }
+    }
+
+    function recordFishStats(fish, weightKg) {
+        if (!gameState.fishStats[fish.name]) {
+            gameState.fishStats[fish.name] = {
+                totalCaught: 0,
+                bestWeight: 0
+            };
+        }
+        const stats = gameState.fishStats[fish.name];
+        stats.totalCaught += 1;
+        if (weightKg > stats.bestWeight) {
+            stats.bestWeight = weightKg;
+        }
+    }
+
+    function finishCatch(success) {
+        const status = document.getElementById('fishingStatus');
+        const timingGameDiv = document.getElementById('timingGame');
+        const timingBar = document.getElementById('timingBar');
+        const timingZone = document.getElementById('timingZone');
+        const reelButton = document.getElementById('reelButton');
+        const biteIndicator = document.getElementById('biteIndicator');
+        const timingInstructions = document.getElementById('timingInstructions');
+
+        timingGameActive = false;
+        if (timingBarInterval) {
+            clearInterval(timingBarInterval);
+            timingBarInterval = null;
+        }
+        if (biteTimeout) {
+            clearTimeout(biteTimeout);
+            biteTimeout = null;
+        }
+
+        if (timingBar) timingBar.style.display = 'none';
+        if (timingZone) timingZone.style.display = 'none';
+        if (reelButton) reelButton.style.display = 'none';
+        if (biteIndicator) biteIndicator.style.display = 'none';
+
+        if (timingGameDiv) timingGameDiv.classList.remove('active');
+
+        const fishButton = document.getElementById('fishButton');
+        if (fishButton) fishButton.disabled = false;
+
+        if (!success) {
+            if (timingInstructions) timingInstructions.textContent = 'The fish got away!';
+            showMessage('The fish got away... 🐟💨', 'fail');
+            if (status) status.textContent = 'Ready to fish!';
+            updateUI();
+            saveGame();
+            return;
+        }
+
+        // success catch
+        const baseRarity = pickRarity();
+        let fish = pickFishByRarity(baseRarity);
+
+        const bonus = (gameState.equipment.rod.catchBonus || 0) +
+                      (gameState.equipment.bait.catchBonus || 0);
+
+        if (bonus > 0 && Math.random() < bonus / 300) {
+            const order = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+            const idx = Math.min(order.indexOf(baseRarity) + 1, order.length - 1);
+            fish = pickFishByRarity(order[idx]);
+        }
+
+        const weightKg =
+            fish.minWeightKg +
+            Math.random() * (fish.maxWeightKg - fish.minWeightKg);
+
+        if (!gameState.inventory[fish.name]) {
+            gameState.inventory[fish.name] = 0;
+        }
+        gameState.inventory[fish.name] += 1;
+        gameState.totalFish += 1;
+
+        applyLevelUp(fish.xp);
+        gameState.gold += fish.gold;
+        recordFishStats(fish, weightKg);
+
+        showMessage(
+            `You caught a ${fish.name} (${weightKg.toFixed(2)} kg) and earned ${fish.xp} XP & ${fish.gold} gold!`,
+            'success'
+        );
+        if (status) status.textContent = 'Ready to fish!';
+        updateUI();
+        saveGame();
+    }
+
+    function reelIn() {
+        if (!timingGameActive) return;
+
+        const timingInstructions = document.getElementById('timingInstructions');
+        const biteIndicator = document.getElementById('biteIndicator');
+
+        if (biteIndicator) biteIndicator.style.display = 'none';
+
+        const posPercent = currentTimingPosition;
+        if (posPercent >= reelWindowStart && posPercent <= reelWindowEnd) {
+            if (timingInstructions) timingInstructions.textContent = 'Nice timing! Reeling in...';
+            finishCatch(true);
+        } else {
+            if (timingInstructions) timingInstructions.textContent = 'Too early/late! The fish slipped away.';
+            finishCatch(false);
+        }
+
+        if (timingBarInterval) {
+            clearInterval(timingBarInterval);
+            timingBarInterval = null;
+        }
+    }
+    window.reelIn = reelIn;
+
+    function startTimingGame() {
+        const timingGameDiv = document.getElementById('timingGame');
+        const timingBar = document.getElementById('timingBar');
+        const timingZone = document.getElementById('timingZone');
+        const reelButton = document.getElementById('reelButton');
+        const biteIndicator = document.getElementById('biteIndicator');
+        const timingInstructions = document.getElementById('timingInstructions');
+
+        if (!timingGameDiv || !timingBar || !timingZone || !reelButton || !timingInstructions) {
+            // If UI missing, just auto catch so game doesn't break
+            finishCatch(true);
+            return;
+        }
+
+        timingGameActive = true;
+        currentTimingPosition = 0;
+        timingDirection = 1;
+
+        const windowWidthPercent = 20 + Math.random() * 20;      // 20–40% window
+        reelWindowStart = 40 + Math.random() * 20;               // start around center-ish
+        reelWindowEnd = Math.min(100, reelWindowStart + windowWidthPercent);
+
+        timingGameDiv.classList.add('active');
+        timingBar.style.display = 'block';
+        timingZone.style.display = 'block';
+        reelButton.style.display = 'none';
+        if (biteIndicator) biteIndicator.style.display = 'none';
+
+        timingInstructions.textContent = 'Waiting for a bite...';
+
+        timingZone.style.left = reelWindowStart + '%';
+        timingZone.style.width = (reelWindowEnd - reelWindowStart) + '%';
+
+        const biteDelay = 1000 + Math.random() * 3000; 
+        if (biteTimeout) clearTimeout(biteTimeout);
+        biteTimeout = setTimeout(() => {
+            if (!timingGameActive) return;
+            timingInstructions.textContent = '🎣 BITE! Click "REEL IN" at the right time!';
+            if (biteIndicator) biteIndicator.style.display = 'block';
+            reelButton.style.display = 'inline-block';
+        }, biteDelay);
+
+        const stepMs = 20;
+        const speedPercentPerStep = 2;
+
+        if (timingBarInterval) clearInterval(timingBarInterval);
+        timingBarInterval = setInterval(() => {
+            if (!timingGameActive) return;
+
+            currentTimingPosition += timingDirection * speedPercentPerStep;
+            if (currentTimingPosition >= 100) {
+                currentTimingPosition = 100;
+                timingDirection = -1;
+            } else if (currentTimingPosition <= 0) {
+                currentTimingPosition = 0;
+                timingDirection = 1;
+            }
+
+            timingBar.style.left = currentTimingPosition + '%';
+        }, stepMs);
+
+        const failTimeout = 5000;
+        setTimeout(() => {
+            if (timingGameActive) {
+                timingInstructions.textContent = 'Too slow! The fish escaped.';
+                finishCatch(false);
+            }
+        }, failTimeout);
+    }
+
+    // -------------------- Fishing Entry --------------------
+    function goFishing() {
+        const cost = getCurrentEnergyCost();
+        if (gameState.energy < cost) {
+            showMessage('Not enough energy to fish!', 'fail');
+            return;
+        }
+
+        gameState.energy -= cost;
+        gameState.casts += 1;
+        randomizeEnvironment();
+
+        const status = document.getElementById('fishingStatus');
+        const fishButton = document.getElementById('fishButton');
+        const timingGameDiv = document.getElementById('timingGame');
+
+        if (fishButton) fishButton.disabled = true;
+        if (status) status.textContent = 'Casting your line...';
+
+        if (timingGameDiv) {
+            timingGameDiv.classList.remove('active');
+        }
+
+        updateUI();
+        saveGame();
+
+        setTimeout(() => {
+            startTimingGame();
+            if (status) status.textContent = 'Watch the bar and REEL IN!';
+        }, 400);
+    }
+    window.goFishing = goFishing;
+
+    // -------------------- Save / Load --------------------
+    function saveGame() {
+        try {
+            localStorage.setItem('fishingRPG_save', JSON.stringify(gameState));
+        } catch (e) {
+            console.error('Error saving game:', e);
+        }
+    }
+    window.saveGame = saveGame;
+
+    function loadGame() {
+        try {
+            const raw = localStorage.getItem('fishingRPG_save');
+            if (!raw) return;
+            const data = JSON.parse(raw);
+            if (typeof data !== 'object' || !data) return;
+
+            gameState = Object.assign({}, gameState, data);
+
+            if (!gameState.inventory) gameState.inventory = {};
+            if (!gameState.equipment) {
+                gameState.equipment = {
+                    rod: { name: 'Basic Rod', catchBonus: 0, energyCost: 10 },
+                    bait: { name: 'No Bait', catchBonus: 0 }
+                };
+            }
+            if (!gameState.ownedEquipment) {
+                gameState.ownedEquipment = { rods: ['Basic Rod'], baits: ['No Bait'] };
+            }
+            if (!gameState.environment) {
+                gameState.environment = { timeOfDay: 'Day', weather: 'Clear' };
+            }
+            if (!gameState.fishStats) gameState.fishStats = {};
+            if (!gameState.currentLocationId) gameState.currentLocationId = 'lake';
+
+            window.gameState = gameState;
+
+            equipmentDatabase.rods.forEach(r => {
+                r.owned = (gameState.ownedEquipment.rods && gameState.ownedEquipment.rods.includes(r.name)) || r.price === 0;
+            });
+            equipmentDatabase.baits.forEach(b => {
+                b.owned = (gameState.ownedEquipment.baits && gameState.ownedEquipment.baits.includes(b.name)) || b.price === 0;
+            });
+        } catch (e) {
+            console.error('Error loading game:', e);
+        }
+    }
+    window.loadGame = loadGame;
+
+    // -------------------- Energy Regen --------------------
+    function startEnergyRegen() {
+        setInterval(() => {
+            if (gameState.energy < gameState.maxEnergy) {
+                gameState.energy += 1;
+                if (gameState.energy > gameState.maxEnergy) {
+                    gameState.energy = gameState.maxEnergy;
+                }
+                updateUI();
+                saveGame();
+            }
+        }, 5000);
+    }
+
+    // -------------------- Leaderboard UI Hook --------------------
+    function setLeaderboardData(players) {
+        const container = document.getElementById('leaderboardContent');
+        if (!container) return;
+
+        if (!players || players.length === 0) {
+            container.innerHTML = '<p style="color:#999;text-align:center;padding:15px;">No leaderboard data yet.</p>';
+            return;
+        }
+
+        let html = `
+            <table style="width:100%;border-collapse:collapse;font-size:0.9em;">
+                <thead>
+                    <tr style="background:#f1f3f5;">
+                        <th style="padding:8px;border-bottom:1px solid #dee2e6;">#</th>
+                        <th style="padding:8px;border-bottom:1px solid #dee2e6;text-align:left;">Player</th>
+                        <th style="padding:8px;border-bottom:1px solid #dee2e6;">Level</th>
+                        <th style="padding:8px;border-bottom:1px solid #dee2e6;">Total Fish</th>
+                        <th style="padding:8px;border-bottom:1px solid #dee2e6;">Biggest Catch</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        players.forEach((p, idx) => {
+            const biggest = p.biggestCatchKg ? p.biggestCatchKg.toFixed(2) + ' kg' : '-';
+            html += `
+                <tr>
+                    <td style="padding:6px;border-bottom:1px solid #f1f3f5;">${idx + 1}</td>
+                    <td style="padding:6px;border-bottom:1px solid #f1f3f5;text-align:left;">${p.username || 'Player'}</td>
+                    <td style="padding:6px;border-bottom:1px solid #f1f3f5;">${p.level || 1}</td>
+                    <td style="padding:6px;border-bottom:1px solid #f1f3f5;">${p.totalFish || 0}</td>
+                    <td style="padding:6px;border-bottom:1px solid #f1f3f5;">${biggest}</td>
+                </tr>
+            `;
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+    window.setLeaderboardData = setLeaderboardData;
+
+    // -------------------- Init --------------------
+    function initGame() {
+        loadGame();
+        renderEquipment();
+        renderShop();
+        renderSell();
+        renderLocations();
+        renderEncyclopedia();
+        updateUI();
+        startEnergyRegen();
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+        try {
+            initGame();
+        } catch (e) {
+            console.error('Error initializing game:', e);
+            alert('Error loading game. Please refresh the page.');
+        }
+    });
 </script>
 
 <!-- FIREBASE + LEADERBOARD + CHAT + DISCORD FRONT-END -->
@@ -66,12 +1712,12 @@
     let username = localStorage.getItem('fishingRPG_username');
 
     if (discordName) {
-        const trimmed = discordName.trim();
-        if (trimmed) {
-            username = trimmed;
-            localStorage.setItem('fishingRPG_username', username);
-        }
+    const trimmed = discordName.trim();
+    if (trimmed) {
+        username = trimmed;
+        localStorage.setItem('fishingRPG_username', username);
     }
+}
 
     if (!username) {
         username = prompt("Enter your username for the global leaderboard:") || "";
@@ -147,36 +1793,13 @@
 
     let triedDiscordToken = false;
 
-    // Ensure leaderboard syncs with discordName *after* successful sign in and also after login with custom token.
-    function setUsernameFromDiscordIfAvailable() {
-        // this runs after firebase login, so auth.currentUser is present
-        if (discordName) {
-            const trimmed = discordName.trim();
-            if (trimmed) {
-                username = trimmed;
-                localStorage.setItem("fishingRPG_username", username);
-                const nameEl = document.getElementById("accountName");
-                if (nameEl) nameEl.textContent = username;
-                window.fishingUsername = username;
-            }
-        }
-    }
-
-    // Used to force leaderboard sync immediately after Discord login, or as fallback after any login
-    function forceLeaderboardSyncAfterUsername(forceImmediate=false) {
-        // always use .username at this time, and *inject* username for leaderboard sync
-        if (forceImmediate) {
-            if (window.syncLeaderboardNow) window.syncLeaderboardNow();
-        } else {
-            if (window.scheduleLeaderboardSync) window.scheduleLeaderboardSync();
-        }
-    }
-
     onAuthStateChanged(auth, async (user) => {
+
         if (!user) {
-            // not logged in yet, try discord token
+
             if (!triedDiscordToken && discordToken) {
                 triedDiscordToken = true;
+
                 try {
                     await signInWithCustomToken(auth, discordToken);
                     return;
@@ -184,28 +1807,41 @@
                     console.error("Discord custom token failed, falling back to anonymous:", err);
                 }
             }
+
             signInAnonymously(auth).catch(err => console.error("Anon auth error:", err));
             return;
         }
 
-        // Now logged in (either via Discord or anon)
+        // Logged in
         window.fishingUserId = user.uid;
 
-        // If we logged in with Discord, update username and leaderboard immediately
+        // --- Sync Discord username ---
         if (discordName) {
-            setUsernameFromDiscordIfAvailable();
 
-            // 🔥 IMMEDIATE leaderboard sync with correct (discord) username, regardless of local cache
-            if (window.syncLeaderboardNow)
-                window.syncLeaderboardNow();
+            const trimmed = discordName.trim();
 
-            // Return so fallback sync is NOT run
-            return;
+            if (trimmed) {
+
+                username = trimmed;
+
+                // save + update UI
+                localStorage.setItem("fishingRPG_username", username);
+
+                const nameEl = document.getElementById("accountName");
+
+                if (nameEl) nameEl.textContent = username;
+
+                // 🔥 IMMEDIATE leaderboard sync (correct name)
+                if (window.syncLeaderboardNow) window.syncLeaderboardNow();
+
+                return; // IMPORTANT: stop here so fallback sync does NOT run
+
+            }
+
         }
 
-        // Fallback: force leaderboard sync in 2s (anon user, or normal)
-        if (window.scheduleLeaderboardSync)
-            window.scheduleLeaderboardSync();
+        // 🔥 IMPORTANT: Force leaderboard update AFTER login
+        scheduleLeaderboardSync();
 
     });
 
@@ -213,18 +1849,12 @@
     function syncLeaderboardNow() {
         const gs = window.gameState;
         const user = auth.currentUser;
-        // Use ALWAYS UP-TO-DATE username if possible
-        let displayName = (typeof window.fishingUsername === "string" ? window.fishingUsername : null) || username || "Player";
-
-        // If a discord name param is present, it should always have priority
-        if (discordName && discordName.trim()) displayName = discordName.trim();
-
         if (!gs || !user) return;
 
         const biggest = (window.getBiggestCatchKg && window.getBiggestCatchKg()) || 0;
         const userRef = ref(db, "leaderboard/" + user.uid);
         set(userRef, {
-            username: displayName,
+            username: username,
             level: gs.level || 1,
             totalFish: gs.totalFish || 0,
             gold: gs.gold || 0,
@@ -239,7 +1869,6 @@
         syncTimeout = setTimeout(syncLeaderboardNow, 2000);
     }
     window.scheduleLeaderboardSync = scheduleLeaderboardSync;
-    window.syncLeaderboardNow = syncLeaderboardNow; // expose to entire window, guarantees call after Discord login
 
     const lbRef = ref(db, "leaderboard");
     const lbQuery = query(lbRef, orderByChild("level"), limitToLast(100));
@@ -293,12 +1922,8 @@
         const text = input.value.trim();
         if (!text) return;
 
-        // Always use updated username for chat (in case of Discord login)
-        let chatUser = (typeof window.fishingUsername === "string" && window.fishingUsername) || username || "Player";
-        if (discordName && discordName.trim()) chatUser = discordName.trim();
-
         push(chatRef, {
-            user: chatUser,
+            user: username,
             text: text,
             time: Date.now()
         });
@@ -306,7 +1931,6 @@
         input.value = "";
     };
 
-    // Also run updateUI to make sure accountName is refreshed to Discord username after login
     if (window.updateUI) window.updateUI();
 </script>
 </body>
