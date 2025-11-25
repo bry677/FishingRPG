@@ -1798,70 +1798,37 @@
         if (!user) {
 
             if (!triedDiscordToken && discordToken) {
-
                 triedDiscordToken = true;
 
                 try {
-
                     await signInWithCustomToken(auth, discordToken);
-
                     return;
-
                 } catch (err) {
-
                     console.error("Discord custom token failed, falling back to anonymous:", err);
-
                 }
-
             }
-
-
 
             signInAnonymously(auth).catch(err => console.error("Anon auth error:", err));
-
             return;
-
         }
-
-
 
         // Logged in
-
         window.fishingUserId = user.uid;
 
-
-
-        // 🔥🔥🔥 ADD THIS — SYNC DISCORD USERNAME AFTER LOGIN 🔥🔥🔥
-
+        // --- Sync Discord username ---
         if (discordName) {
-
             const trimmed = discordName.trim();
-
             if (trimmed) {
-
                 username = trimmed;
-
                 localStorage.setItem("fishingRPG_username", username);
 
-
-
-                // Update UI name
-
                 const nameEl = document.getElementById("accountName");
-
                 if (nameEl) nameEl.textContent = username;
-
-
-
-                // Force immediate leaderboard update
-
-                if (window.scheduleLeaderboardSync)
-
-                    window.scheduleLeaderboardSync();
-
             }
-
         }
+
+        // 🔥 IMPORTANT: Force leaderboard update AFTER login
+        scheduleLeaderboardSync();
 
     });
 
