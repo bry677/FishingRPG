@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Discord Login</title>
+<script>
+const params = new URLSearchParams(window.location.search);
+const code = params.get("code");
+
+if (!code) {
+    document.body.innerHTML = "Discord login failed: No code received.";
+} else {
+    // Redirect to Firebase cloud function
+    window.location.href = 
+        "https://YOUR_CLOUD_FUNCTION_URL/discordAuth?code=" + code;
+}
+</script>
+</head>
+<body>
+</body>
+</html>
