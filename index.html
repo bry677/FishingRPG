@@ -1841,8 +1841,9 @@
         }
 
         // 🔥 IMPORTANT: Force leaderboard update AFTER login
-        scheduleLeaderboardSync();
-
+        if (!discordName) {
+            scheduleLeaderboardSync();
+        }
     });
 
     // ---------- Leaderboard (keyed by UID) ----------
