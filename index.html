@@ -1712,22 +1712,12 @@
     let username = localStorage.getItem('fishingRPG_username');
 
     if (discordName) {
-
-        username = discordName.trim();
-
-        if (!username) username = "DiscordUser";
-
+    const trimmed = discordName.trim();
+    if (trimmed) {
+        username = trimmed;
         localStorage.setItem('fishingRPG_username', username);
-
-        // Force cloud & leaderboard sync with Discord username
-
-        window.fishingUsername = username;
-
-        scheduleLeaderboardSync();
-
-        syncCloudSave();
-
     }
+}
 
     if (!username) {
         username = prompt("Enter your username for the global leaderboard:") || "";
