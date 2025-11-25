@@ -1845,7 +1845,7 @@
         const biggest = (window.getBiggestCatchKg && window.getBiggestCatchKg()) || 0;
         const userRef = ref(db, "leaderboard/" + user.uid);
         set(userRef, {
-            username: window.fishingUsername || username, // Prefer Discord name
+            username: username,
             level: gs.level || 1,
             totalFish: gs.totalFish || 0,
             gold: gs.gold || 0,
