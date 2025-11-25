@@ -1866,35 +1866,27 @@
 
     // ---------- Leaderboard (keyed by UID) ----------
     function syncLeaderboardNow() {
-    console.log("Syncing leaderboard NOW with username:", username, "UID:", auth.currentUser?.uid);
+
+        console.log("Syncing leaderboard NOW with username:", username);
 
         const gs = window.gameState;
 
-        const user = auth.currentUser;
-
-        if (!gs || !user) return;
-
-
+        if (!gs || !username) return;
 
         const biggest = (window.getBiggestCatchKg && window.getBiggestCatchKg()) || 0;
 
-        const userRef = ref(db, "leaderboard/" + user.uid);
+        // KEY BY USERNAME (how your DB is structured)
+        const userRef = ref(db, "leaderboard/" + username);
 
         set(userRef, {
-
             username: username,
-
             level: gs.level || 1,
-
             totalFish: gs.totalFish || 0,
-
             gold: gs.gold || 0,
-
             biggestCatchKg: biggest || 0,
-
             updatedAt: Date.now()
-
-        }).catch(err => console.error("Error syncing leaderboard:", err));
+        })
+        .catch(err => console.error("Error syncing leaderboard:", err));
 
     }
 
