@@ -1824,17 +1824,17 @@
 
                 username = trimmed;
 
+                // save + update UI
                 localStorage.setItem("fishingRPG_username", username);
 
                 const nameEl = document.getElementById("accountName");
 
                 if (nameEl) nameEl.textContent = username;
 
-                // 🔥 IMMEDIATE leaderboard sync
-
+                // 🔥 IMMEDIATE leaderboard sync (correct name)
                 if (window.syncLeaderboardNow) window.syncLeaderboardNow();
 
-                return; // stop running further login code
+                return; // IMPORTANT: stop here so fallback sync does NOT run
 
             }
 
